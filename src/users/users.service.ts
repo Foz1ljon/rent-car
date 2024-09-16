@@ -29,35 +29,43 @@ export class UsersService {
   async login(login: LoginUserDto, res: Response) {
     try {
       const user = await this.userRepository.findOneBy({ email: login.email });
-
+  
       if (!user) {
         throw new UnauthorizedException('Email topilmadi yoki parol xato');
       }
-
+  
       const passwordMatch = await bcrypt.compare(login.password, user.password);
       if (!passwordMatch) {
         throw new UnauthorizedException('Email topilmadi yoki parol xato');
       }
-
+  
       // Tokenlarni generatsiya qilish
       const tokens = this.jwtService.generateTokens(user);
-
+  
       user.refreshtoken = await bcrypt.hash(tokens.refreshToken, 10);
       await this.userRepository.save(user);
-
+  
       // Refresh tokenni cookiega saqlash
       res.cookie('refreshToken', tokens.refreshToken, {
         httpOnly: true,
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 kun
       });
-      return {
+  
+      // Bu yerda response qaytarish kerak
+      return res.status(200).json({
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
-      };
+      });
     } catch (error) {
       console.log(error);
+      // Error response qaytarish
+      return res.status(500).json({
+        message: 'Login xatoligi',
+        error: error.message,
+      });
     }
   }
+  
 
   // Yangi foydalanuvchini ro'yxatdan o'tkazish
   async register(createUserDto: CreateUserDto, res: Response) {
@@ -194,24 +202,18 @@ export class UsersService {
   }
 
   // Barcha foydalanuvchilarni olish
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-    search?: string,
-  ): Promise<{ data: User[]; count: number }> {
-    const [result, total] = await this.userRepository.findAndCount({
-      where: search
-        ? [{ fname: Like(`%${search}%`) }, { email: Like(`%${search}%`) }]
-        : undefined,
-      take: limit,
-      skip: (page - 1) * limit,
-    });
+// users.service.ts
+async findAll(page: number, limit: number) {
+  // Skip va limitni to'g'ri tekshirish
+  const skip = isNaN(page) || page < 1 ? 0 : (page - 1) * limit;
+  const take = isNaN(limit) || limit < 1 ? 10 : limit; // default limit 10
 
-    return {
-      data: result,
-      count: total,
-    };
-  }
+  return this.userRepository.findAndCount({
+    skip,  // Skip ni raqam ekanligiga ishonch hosil qilish
+    take,  // Limit
+  });
+}
+
 
   // ID bo'yicha bitta foydalanuvchini topish
   async findOne(id: number): Promise<User> {

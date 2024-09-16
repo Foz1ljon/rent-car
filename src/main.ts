@@ -1,4 +1,4 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
@@ -9,7 +9,6 @@ import { ThrottlerExceptionFilter } from './common/utils/throttler-exception.fil
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  // Kuki sozlamalari
   app.use(cookieParser());
   app.enableCors({
     origin: '*', // Change to your frontend's origin
@@ -18,7 +17,6 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Validatsiya sozlamalari
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -27,16 +25,21 @@ async function bootstrap() {
     }),
   );
 
-  // Global Filter
   app.useGlobalFilters(new ThrottlerExceptionFilter());
 
-  // Global Guard
-
-  // Swagger sozlamalari
+  // Configure Swagger with BearerAuth
   const config = new DocumentBuilder()
     .setTitle('API Documentation')
     .setDescription('The API description')
     .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT', // Specify the format if you're using JWT
+      },
+      'access-token', // Name of the security scheme
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -46,4 +49,5 @@ async function bootstrap() {
     console.warn('Listening on ' + env.PORT);
   });
 }
+
 bootstrap();

@@ -1,5 +1,3 @@
-// src/admin/dto/admin-response.dto.ts
-
 import { ApiProperty } from '@nestjs/swagger';
 
 export class AdminResponseDto {

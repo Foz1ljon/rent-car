@@ -20,6 +20,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
@@ -60,6 +61,7 @@ export class UsersController {
   @ApiConsumes('application/json')
   @ApiOperation({ summary: 'Foydalanuvchini kirish' })
   @ApiBody({ type: LoginUserDto })
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     description: 'Foydalanuvchi muvaffaqiyatli kirdi.',
@@ -77,38 +79,16 @@ export class UsersController {
   }
 
   // Barcha foydalanuvchilarni olish
+  // users.controller.ts
   @Get()
-  @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Sahifa raqami',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Sahifadagi elementlar soni',
-  })
-  @ApiQuery({
-    name: 'search',
-    required: false,
-    type: String,
-    description: "Qidiruv so'zi (ismi, nomeri yoki emaili bo'yicha)",
-  })
-  @ApiResponse({
-    status: 200,
-    description: "Foydalanuvchilar ro'yxati.",
-    type: [User],
-  })
   async findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('search') search?: string,
+    @Query('page') page: string, // query'dan kelayotgan qiymat string bo'lishi mumkin
+    @Query('limit') limit: string,
   ) {
-    // Barcha foydalanuvchilarni olish
-    return this.usersService.findAll(page, limit, search);
+    const pageNumber = parseInt(page, 10) || 1; // `parseInt` orqali raqamga aylantirish
+    const limitNumber = parseInt(limit, 10) || 10; // Default 10 ta
+
+    return this.usersService.findAll(pageNumber, limitNumber);
   }
 
   // ID bo'yicha foydalanuvchini topish
@@ -196,6 +176,7 @@ export class UsersController {
   @ApiConsumes('application/json')
   @ApiOperation({ summary: 'Foydalanuvchi tokenini yangilash' })
   @ApiBody({ type: RefreshTokenDto })
+  @ApiBearerAuth()
   @ApiResponse({ status: 200, description: 'Token muvaffaqiyatli yangilandi.' })
   @ApiResponse({ status: 401, description: "Noto'g'ri refresh token." })
   async refreshToken(
@@ -213,13 +194,11 @@ export class UsersController {
     status: 204,
     description: 'Foydalanuvchi muvaffaqiyatli logout qilindi.',
   })
+  @ApiBearerAuth()
   @ApiResponse({ status: 404, description: 'Foydalanuvchi topilmadi.' })
   async logout(@Param('id') id: string) {
-    // Foydalanuvchini logout qilish
     await this.usersService.logout(+id);
   }
-
-  // Parolni tiklash uchun email yuborish
   @Post('forgot-password')
   @ApiConsumes('application/json')
   @ApiOperation({ summary: 'Parolni tiklash uchun email yuborish' })

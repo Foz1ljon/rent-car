@@ -147,7 +147,7 @@ export class CarService {
   }
 
   // Find car by ID
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.carRepo.findOne({
       where: { id },
       relations: ['images', 'user', 'district'],
@@ -217,4 +217,5 @@ export class CarService {
 
     return where;
   }
+
 }

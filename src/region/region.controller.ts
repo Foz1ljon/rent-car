@@ -16,10 +16,11 @@ import {
   ApiOperation,
   ApiQuery,
   ApiResponse,
-  ApiBearerAuth, // Import ApiBearerAuth
+  ApiBearerAuth,
+  ApiTags, // Import ApiBearerAuth
 } from '@nestjs/swagger';
 import { AdminGuard } from '../common/guards/AdminGuard';
-
+@ApiTags('Region')
 @Controller('region')
 export class RegionController {
   constructor(private readonly regionService: RegionService) {}

@@ -192,4 +192,6 @@ export class CarController {
   ) {
     return this.carService.removePhoto(+id, +photoId);
   }
+
+  
 }
