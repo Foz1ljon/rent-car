@@ -1,7 +1,14 @@
-import { Column, Entity, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  OneToMany,
+} from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Car } from '../../car/entities/car.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 // Status enumini aniqlash
 export enum BronStatus {
@@ -42,4 +49,7 @@ export class Bron {
     description: 'Rezervatsiyaning hozirgi holati',
   })
   status: BronStatus;
+
+  @OneToMany(() => Payment, (payment) => payment.bron) // One user can have multiple payments
+  payments: Payment[];
 }

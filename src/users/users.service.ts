@@ -85,7 +85,7 @@ export class UsersService {
 
     // Create a new user instance
     const newUser = this.userRepository.create(createUserDto); // Fix applied here
-    await this.userRepository.save(newUser); // Now newUser is correctly defined
+    await this.userRepository.save(newUser); 
 
     // Generate tokens
     const tokens = this.jwtService.generateTokens(newUser);

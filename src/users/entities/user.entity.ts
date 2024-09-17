@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Car } from '../../car/entities/car.entity'; // Car entity'sini import qilish
 import { Comment } from '../../comment/entities/comment.entity'; // Comment entity'sini import qilish
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Entity('users')
 export class User {
@@ -97,4 +98,7 @@ export class User {
 
   @OneToMany(() => Comment, (comment) => comment.user, { cascade: true })
   comments: Comment[];
+
+  @OneToMany(() => Payment, (payment) => payment.user) // One user can have multiple payments
+  payments: Payment[];
 }

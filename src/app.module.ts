@@ -13,6 +13,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { CommentModule } from './comment/comment.module';
 import { BronModule } from './bron/bron.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { BronModule } from './bron/bron.module';
     CarModule,
     CommentModule,
     BronModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [

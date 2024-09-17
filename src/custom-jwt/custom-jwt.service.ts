@@ -30,7 +30,6 @@ export class CustomJwtService {
     });
 
     return {
-      sub: payload.id, // Return the user ID
       accessToken, // Return the access token
       refreshToken, // Return the refresh token
     };
